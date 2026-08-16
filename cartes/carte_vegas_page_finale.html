@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Vegas · Page — Programme final</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'Segoe UI', sans-serif; background: #0f1923; color: #fff; }
+#header { background: linear-gradient(135deg, #1C3F6E 0%, #0f2a4a 100%); padding: 16px 20px; text-align: center; border-bottom: 2px solid #C8511B; }
+#header h1 { font-size: 18px; font-weight: 700; }
+#header p { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+#legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 12px 16px; background: #1a2a3a; border-bottom: 1px solid #2a3a4a; }
+.leg { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+#map { height: calc(100vh - 150px); width: 100%; }
+.popup-title { font-size: 14px; font-weight: 700; color: #1C3F6E; margin-bottom: 6px; }
+.popup-time { font-size: 12px; font-weight: 700; color: #C8511B; margin-bottom: 4px; }
+.popup-desc { font-size: 12px; color: #333; line-height: 1.5; }
+.leaflet-popup-content-wrapper { border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); max-width: 270px; }
+</style>
+</head>
+<body>
+<div id="header"><h1>🎰 Vegas · Page — Programme final</h1><p>Mathieu, Julie & Nohlan — 26 au 29 août 2026</p></div>
+<div id="legend">
+  <div class="leg"><div class="dot" style="background:#3b82f6"></div> Mer 26</div>
+  <div class="leg"><div class="dot" style="background:#f97316"></div> Jeu 27</div>
+  <div class="leg"><div class="dot" style="background:#22c55e"></div> Ven 28</div>
+  <div class="leg"><div class="dot" style="background:#a855f7"></div> Sam 29</div>
+  <div class="leg"><div class="dot" style="background:#eab308"></div> 🟡 Choix</div>
+  <div class="leg"><div class="dot" style="background:#9ca3af"></div> ⚪ Option</div>
+  <div class="leg"><div class="dot" style="background:#ef4444"></div> 🏨 Hôtels</div>
+</div>
+<div id="map"></div>
+<script>
+const map = L.map('map', { center: [36.3, -113.8], zoom: 7, zoomControl: true });
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors', maxZoom: 18 }).addTo(map);
+function mkIcon(color, label) {
+  return L.divIcon({ className: '', html: `<div style="background:${color};color:white;font-size:10.5px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);font-weight:900">${label}</div>`, iconSize: [26,26], iconAnchor: [13,13], popupAnchor: [0,-13] });
+}
+function pop(title, time, desc) {
+  return `<div class="popup-title">${title}</div>${time?`<div class="popup-time">🕐 ${time}</div>`:''}<div class="popup-desc">${desc}</div>`;
+}
+
+// Hotels inverses : Paris LV mercredi, Planet Hollywood vendredi
+const hotels = [
+  { latlng: [36.112462,-115.170707], name:"🏨 Paris Las Vegas", t:"Nuit — Mer 26", d:"" },
+  { latlng: [36.915190,-111.460018], name:"🏨 Best Western View of Lake Powell", t:"Nuit — Jeu 27", d:"91€, payé par Mathieu." },
+  { latlng: [36.109970,-115.170065], name:"🏨 Planet Hollywood", t:"Nuit — Ven 28", d:"" },
+  { latlng: [33.985700,-118.472140], name:"🏨 Venice on the Beach Hotel", t:"Nuit — Sam 29", d:"" },
+];
+hotels.forEach(h => L.marker(h.latlng, {icon:mkIcon('#ef4444','🏨')}).addTo(map).bindPopup(pop(h.name,h.t,h.d),{maxWidth:280}));
+
+const mer26 = [
+  { latlng: [34.948097,-116.865021], n:"1 · Calico Ghost Town", t:"9h30", d:"" },
+  { latlng: [34.905600,-116.791237], n:"2 · Peggy Sue's (option libre)", t:"~10h30", d:"~2h-2h15 de route jusqu'à Vegas depuis là.", opt:true },
+  { latlng: [35.264259,-116.071098], n:"3 · Baker — Thermomètre géant", t:"11h30", d:"" },
+  { latlng: [36.1139,-115.1776], n:"4 · Arrivée Strip", t:"13h15", d:"" },
+  { latlng: [36.11280,-115.17140], n:"5 · Hôtel — Paris Las Vegas", t:"13h30", d:"Dépôt bagages, voiture garée, check-in si possible." },
+  { latlng: [36.1099696,-115.1700646], n:"6 · Luxor", t:"14h00", d:"En Uber depuis l'hôtel (~12-18$)." },
+  { latlng: [36.1023,-115.1745], n:"7 · New York-New York", t:"15h00", d:"" },
+  { latlng: [36.112905,-115.176603], n:"8 · Bellagio Conservatory", t:"16h00", d:"45 min." },
+  { latlng: [36.11215,-115.17000], n:"9 · Piscine de l'hôtel", t:"17h00", d:"Pause détente." },
+  { latlng: [36.1215,-115.1697], n:"10 · Départ pour le Venetian", t:"19h00", d:"" },
+  { latlng: [36.176905,-115.164536], n:"11 · Passage devant la Sphere", t:"20h00", d:"Vue LED de nuit en passant." },
+  { latlng: [36.171500,-115.144600], n:"12 · Fremont Street + SlotZilla", t:"20h15", d:"En Uber. Repas dans le secteur." },
+  { latlng: [36.113500,-115.177200], n:"13 · Fontaines du Bellagio", t:"~22h00", d:"En rentrant depuis Fremont Street. Show nocturne." },
+];
+mer26.forEach(p => L.marker(p.latlng, {icon:mkIcon(p.opt?'#9ca3af':'#3b82f6', p.n.split(' ')[0])}).addTo(map).bindPopup(pop(p.n,p.t,p.d),{maxWidth:280}));
+L.polyline([hotels[0].latlng].concat(mer26.filter(p=>!p.opt).map(p=>p.latlng)), {color:'#3b82f6',weight:3,opacity:0.75,dashArray:'8,4'}).addTo(map);
+
+const jeu27 = [
+  { latlng: [36.1190010,-115.1761257], n:"14 · Caesars Palace — Forum Shops", t:"9h30", d:"Plafond peint, architecture romaine." },
+  { latlng: [36.163651,-115.157749], n:"15 · Las Vegas North Premium Outlets", t:"10h30", d:"" },
+  { latlng: [36.8776,-111.5049], n:"16 · Horseshoe Bend (option, sur la route)", t:"~17h00", d:"Sans détour, avant Page.", opt:true },
+];
+jeu27.forEach(p => L.marker(p.latlng, {icon:mkIcon(p.opt?'#9ca3af':'#f97316', p.n.split(' ')[0])}).addTo(map).bindPopup(pop(p.n,p.t,p.d),{maxWidth:280}));
+L.polyline([hotels[0].latlng].concat(jeu27.map(p=>p.latlng)).concat([hotels[1].latlng]), {color:'#f97316',weight:3,opacity:0.75,dashArray:'8,4'}).addTo(map);
+
+const ven28 = [
+  { latlng: [36.9031268,-111.4132973], n:"13 · Lower Antelope Canyon", t:"10h00 (tour 10h45)", d:"Coordonnées vérifiées." },
+  { latlng: [36.8784,-111.5058], n:"14 · Horseshoe Bend", t:"~12h15", d:"" },
+  { latlng: [37.0195181,-111.539322], n:"15 · Lone Rock Beach (choix A)", t:"~12h30", d:"Pique-nique + baignade. Coordonnées vérifiées.", c:'choice' },
+  { latlng: [36.9994413,-111.4857411], n:"15b · Wahweap Swim Beach (choix B)", t:"~12h30", d:"Pique-nique + baignade. Coordonnées vérifiées.", c:'choice' },
+];
+ven28.forEach(p => L.marker(p.latlng, {icon:mkIcon(p.c==='choice'?'#eab308':'#22c55e', p.n.split(' ')[0])}).addTo(map).bindPopup(pop(p.n,p.t,p.d),{maxWidth:280}));
+L.polyline([hotels[1].latlng].concat(ven28.filter(p=>p.c!=='choice').map(p=>p.latlng)).concat([hotels[2].latlng]), {color:'#22c55e',weight:3,opacity:0.75,dashArray:'8,4'}).addTo(map);
+
+const sam29 = [
+  { latlng: [36.113200,-115.171700], n:"16 · Strip + Tour Eiffel", t:"10h30", d:"" },
+  { latlng: [33.986700,-118.473200], n:"17 · Venice Beach", t:"Soir", d:"" },
+];
+sam29.forEach(p => L.marker(p.latlng, {icon:mkIcon('#a855f7', p.n.split(' ')[0])}).addTo(map).bindPopup(pop(p.n,p.t,p.d),{maxWidth:280}));
+L.polyline([hotels[2].latlng].concat(sam29.map(p=>p.latlng)), {color:'#a855f7',weight:3,opacity:0.75,dashArray:'8,4'}).addTo(map);
+
+const options = [
+  { latlng: [36.895740,-111.444110], n:"⚪ Page Cave", d:"1501 Coppermine Rd." },
+  { latlng: [36.114700,-115.172800], n:"⚪ Walgreens", d:"" },
+  { latlng: [36.113200,-115.171900], n:"⚪ The Netflix House", d:"⚠️ Ouverture 2027." },
+];
+options.forEach(p => L.marker(p.latlng, {icon:mkIcon('#9ca3af','⚪')}).addTo(map).bindPopup(pop(p.n,'Option',p.d),{maxWidth:280}));
+
+map.fitBounds([[33.85,-118.60],[37.10,-111.30]]);
+</script>
+</body>
+</html>
