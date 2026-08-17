@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌉 San Francisco — Programme final</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'Segoe UI', sans-serif; background: #0f1923; color: #fff; }
+#header { background: linear-gradient(135deg, #1C3F6E 0%, #0f2a4a 100%); padding: 16px 20px; text-align: center; border-bottom: 2px solid #C8511B; }
+#header h1 { font-size: 18px; font-weight: 700; }
+#header p { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+#legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 12px 16px; background: #1a2a3a; border-bottom: 1px solid #2a3a4a; }
+.leg { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+#map { height: calc(100vh - 150px); width: 100%; }
+.popup-title { font-size: 14px; font-weight: 700; color: #1C3F6E; margin-bottom: 6px; }
+.popup-time { font-size: 12px; font-weight: 700; color: #C8511B; margin-bottom: 4px; }
+.popup-desc { font-size: 12px; color: #333; line-height: 1.5; }
+.leaflet-popup-content-wrapper { border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); max-width: 270px; }
+</style>
+</head>
+<body>
+<div id="header"><h1>🌉 San Francisco — Programme final</h1><p>Mathieu, Julie & Nohlan — 17 au 19 août 2026</p></div>
+<div id="legend">
+  <div class="leg"><div class="dot" style="background:#3b82f6"></div> Lundi 17</div>
+  <div class="leg"><div class="dot" style="background:#f97316"></div> Mardi 18</div>
+  <div class="leg"><div class="dot" style="background:#22c55e"></div> Mercredi 19</div>
+  <div class="leg"><div class="dot" style="background:#9ca3af"></div> ⚪ Option/Idée</div>
+  <div class="leg"><div class="dot" style="background:#ef4444"></div> 🏨 Hôtel</div>
+  <div class="leg"><div style="width:16px;height:3px;background:#d4af37;flex-shrink:0"></div> 🚋 Lignes cable car</div>
+</div>
+<div id="map"></div>
+<script>
+const map = L.map('map', { center: [37.79, -122.43], zoom: 13, zoomControl: true });
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors', maxZoom: 18 }).addTo(map);
+function mkIcon(color, label) {
+  return L.divIcon({ className: '', html: `<div style="background:${color};color:white;font-size:10.5px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);font-weight:900">${label}</div>`, iconSize: [26,26], iconAnchor: [13,13], popupAnchor: [0,-13] });
+}
+function pop(title, time, desc, link) {
+  return `<div class="popup-title">${title}</div>${time?`<div class="popup-time">🕐 ${time}</div>`:''}<div class="popup-desc">${desc}</div>${link?`<div style="margin-top:8px"><a href="${link}" target="_blank" style="display:inline-block;background:#1C3F6E;color:white;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;text-decoration:none">📍 Ouvrir dans Google Maps</a></div>`:''}`;
+}
+
+const HOTEL = [37.7951241, -122.4222336];
+L.marker(HOTEL, { icon: mkIcon('#ef4444','🏨') }).addTo(map).bindPopup(pop("🏨 Nob Hill Motor Inn","17-19 août","1630 Pacific Ave, Russian Hill. Coordonnées vérifiées via Google Maps."), {maxWidth:280});
+
+const lun17 = [
+  { latlng: [37.6287868,-122.4003500], n:"1 · Récupérer location voiture", t:"~15h00", d:"Atterrissage 12h50. Viser 15h00-15h30 (2h à 2h45 après atterrissage : immigration, bagages, AirTrain, retrait voiture)", opt:false },
+  { latlng: [37.7953441,-122.4220536], n:"2 · Arrivée hôtel — Nob Hill Motor Inn", t:"~15h30", d:"Dépôt des bagages en chambre. Voiture pas encore garée pour la nuit", opt:false },
+  { latlng: [37.7431549,-122.4147521], n:"3 · Bernal Heights Park (Option A)", t:"~15h50", d:"En voiture. Vérifier li site avant de partir ! Vue 360°", opt:true },
+  { latlng: [37.7589534,-122.4210993], n:"4 · Nice Kicks — Valencia St", t:"", d:"Si on décide de s\'y arrêter, essayer de récupérer le timing. 877 Valencia St, Mission District.", opt:true },
+  { latlng: [37.7955641,-122.4218736], n:"5 · Retour + voiture garée à l\'hôtel", t:"~16h30", d:"Pour la suite de la soirée, mieux vaut marcher/Uber", opt:false },
+  { latlng: [37.7919133,-122.4131211], n:"6 · Grace Cathedral en passant par 📍 California Street", t:"~16h50", d:"", opt:false },
+  { latlng: [37.7886838,-122.4066997], n:"7 · Union Square — Nike (achat ballon)", t:"~17h00", d:"Passage rapide, surtout pour le ballon de basket ", opt:false },
+  { latlng: [37.7906274,-122.4055973], n:"8 · Dragon Gate / Chinatown", t:"~17h15", d:"Passage, ambiance, photos", opt:false },
+  { latlng: [37.8007752,-122.4102464], n:"9 · North Beach", t:"~17h40", d:"Quartier italien, balade décontractée", opt:false },
+  { latlng: [37.7946366,-122.4115074], n:"10 · Cable car Powell-Mason → Fisherman\'s Wharf / Pier 39", t:"~18h00", d:"Ligne Powell-Mason, terminus Bay & Taylor à 2 min de Pier 39. Remplace la marche, vraie expérience Cable car #1 sur 2 du séjour", opt:false },
+];
+lun17.forEach(p => L.marker(p.latlng, {icon:mkIcon(p.opt?'#9ca3af':'#3b82f6', p.n.split(' ')[0])}).addTo(map).bindPopup(pop(p.n,p.t,p.d),{maxWidth:280}));
+L.polyline([HOTEL].concat(lun17.filter(p=>!p.opt).map(p=>p.latlng)), {color:'#3b82f6',weight:3,opacity:0.75,dashArray:'8,4'}).addTo(map);
+
+const mar18 = [
+  { latlng: [37.7957841,-122.4216936], n:"1 · Départ hôtel à pied", t:"7h30", d:"Direction Blazing Saddles, en passant devant Lombard Street (photos rapides, sans monter la rue)", opt:false },
+  { latlng: [37.8060487,-122.4206076], n:"2 · Blazing Saddles — Location vélos", t:"~8h00", d:"2715 Hyde St. Dossier envoyé par mail pour accélérer l\'enregistrement. Il faudrait partir à 8h30 au plus tard", opt:false },
+  { latlng: [37.8040257,-122.4650165], n:"3 · Crissy Field", t:"~8h50", d:"Traversée directe à vélo, chemin dédié (Golden Gate Promenade/Bay Trail), plat et facile", opt:false },
+  { latlng: [37.8199109,-122.4785598], n:"4 · Golden Gate Bridge → Sausalito", t:"~9h30", d:"Traversée à vélo. Pas d\'arrêt au Palais des Beaux-Arts ce matin — prévu cet après-midi", opt:false },
+  { latlng: [37.8564630,-122.4786500], n:"5 · Ferry Sausalito → Ferry Building", t:"10h55", d:"Horaire réel confirmé (goldengate.org). Vélos à bord", opt:false },
+  { latlng: [37.7954425,-122.3936136], n:"6 · Débarquement Ferry Building", t:"~11h25", d:"", opt:false },
+  { latlng: [37.8018517,-122.4019100], n:"7 · Levi\'s Store — Levi\'s Plaza", t:"", d:"Si le ferry est à l\'heure, on peut s\'y arrêter rapidement", opt:true },
+  { latlng: [37.8023949,-122.4058222], n:"8 · Tour Coit", t:"~11h50", d:"20-25 min", opt:false },
+  { latlng: [37.8106348,-122.4109189], n:"9 · Build-A-Bear Workshop", t:"~13h15", d:"Accessoires uniquement, pas de peluche à fabriquer", opt:false },
+  { latlng: [37.8080000,-122.4172000], n:"10 · Umbrella Alley", t:"", d:"Petit arrêt rapide si le timing le permet.  366 Jefferson St. Ruelle de parapluies colorés.", opt:true },
+  { latlng: [37.8029308,-122.4484231], n:"11 · Vélo → 🏛️ Palais des Beaux-Arts", t:"~13h45", d:"", opt:false },
+  { latlng: [37.7960041,-122.4215136], n:"12 · Vélo → 🏨 Hôtel", t:"~15h", d:"Pour récupérer le ballon", opt:false },
+  { latlng: [37.8013965,-122.4204590], n:"13 · George Sterling Park", t:"~15h15", d:"Terrain de basket. Ballon fraîchement acheté.", opt:false },
+  { latlng: [37.8060487,-122.4206076], n:"14 · Retour des vélos", t:"~16h00", d:"", opt:false },
+  { latlng: [37.7962241,-122.4213336], n:"15 · Retour hôtel — changement de tenue", t:"~16h15", d:"", opt:false },
+  { latlng: [37.8020179,-122.4195579], n:"16 · Rue Lombard (en voiture)", t:"~16h30", d:"Cette fois on descend vraiment les virages", opt:false },
+  { latlng: [37.7939143,-122.4363678], n:"17 · 2640 Steiner St — Maison \"Mrs. Doubtfire\"", t:"~16h45", d:"", opt:false },
+  { latlng: [37.7792750,-122.4192417], n:"18 · San Francisco City Hall", t:"~17h00", d:"", opt:false },
+  { latlng: [37.7763694,-122.4348190], n:"19 · Painted Ladies / Alamo Square", t:"~17h25", d:"", opt:false },
+  { latlng: [37.7703727,-122.4459028], n:"20 · Nice Kicks — Haight St", t:"", d:"Si on s\'y arrête, faire attention à l\'heure pour la suite du programme. 1420 Haight St. ", opt:true },
+  { latlng: [37.7562780,-122.4731940], n:"21 · Mosaic Stairway", t:"", d:"Si on s\'y arrête, faire attention à l\'heure pour la suite du programme, le prochain arrêt se fera vers 18h/18h15.  16th Avenue Tiled Steps.", opt:true },
+  { latlng: [37.7701204,-122.5092684], n:"22 · Golden Gate Park + Jardin Wilhelmina", t:"~17h45", d:"", opt:false },
+  { latlng: [37.7935724,-122.4836380], n:"23 · Baker Beach + Marshall\'s Beach", t:"19h30", d:"Coucher de soleil ~20h00", opt:false },
+  { latlng: [37.7529149,-122.4474131], n:"24 · Twin Peaks — Ville & lumières", t:"~20h50", d:"30 min max", opt:false },
+  { latlng: [37.7620333,-122.4347591], n:"25 · Théâtre Castro", t:"", d:"Passer devant en voiture en rentrant à l\'hôtel", opt:true },
+];
+mar18.forEach(p => L.marker(p.latlng, {icon:mkIcon(p.opt?'#9ca3af':'#f97316', p.n.split(' ')[0])}).addTo(map).bindPopup(pop(p.n,p.t,p.d),{maxWidth:280}));
+L.polyline([HOTEL].concat(mar18.filter(p=>!p.opt).map(p=>p.latlng)), {color:'#f97316',weight:3,opacity:0.75,dashArray:'8,4'}).addTo(map);
+
+const mer19 = [
+  { latlng: [37.8277610,-122.4816692], n:"1 · Battery Spencer (Option A — avant Muir Woods)", t:"~8h35", d:"⚠️ Créneau serré avant la réservation Muir Woods 9h00 — seulement SI le trafic est FLUIDE. Possibilité de brouillard", opt:true },
+  { latlng: [37.8928503,-122.5724979], n:"2 · Muir Woods National Monument", t:"9h00", d:"Créneau réservé. 2h30 minimum. ⚠️ Aucun réseau", opt:false },
+  { latlng: [37.8277610,-122.4816692], n:"3 · Battery Spencer (Option B — après Sausalito)", t:"~13h00", d:"Recommandé : juste après le déjeuner à Sausalito, sur le chemin du retour, aucun détour. Vue plongeante sur le pont. 30 min", opt:true },
+  { latlng: [37.7964441,-122.4211536], n:"4 · Retour SF — voiture garée à l\'hôtel", t:"~13h40", d:"La voiture ne rebouge plus jusqu\'à Los Angeles. ⚠️ RAPPEL : ne pas oublier le ballon de basket à l\'intérieur !", opt:false },
+  { latlng: [37.7847118,-122.4077009], n:"5 · Prendre le Cable car → Union Square", t:"14h00", d:"Ligne Powell-Hyde (la plus spectaculaire), embarquement au terminus Powell/Market. Montée sur Nob Hill puis retour — deuxième ligne, deuxième expérien", opt:false },
+  { latlng: [37.7875520,-122.4066183], n:"6 · Shopping Union Square — Levi\'s, Nike, Finish Line", t:"~14h30", d:"Y arriver en Cable car si pas trop de monde, sinon à pied", opt:false },
+  { latlng: [37.7897395,-122.3961656], n:"7 · Salesforce Tower & Park", t:"~16h15", d:"Gondole gratuite. 25-30 min.", opt:false },
+  { latlng: [37.7951775,-122.4027787], n:"8 · Pyramide Transamerica", t:"~17h00", d:"Extérieur + Redwood Park uniquement.", opt:false },
+  { latlng: [37.7964000,-122.4049000], n:"9 · Angle Kearny & Columbus", t:"", d:"Flatiron (Sentinel Building), North Beach/Chinatown.", opt:true },
+  { latlng: [37.7997270,-122.4080860], n:"10 · Golden Boy Pizza (Option)", t:"~17h30", d:"542 Green St, North Beach. Repas rapide et bon marché avant le match — le Chase Center est cher et pas forcément terrible.", opt:true },
+  { latlng: [37.7966641,-122.4209736], n:"11 · Retour rapide à l\'hôtel", t:"~18h00", d:"Dépôt ballon + achats, changement de tenue (compressé, ~15-20 min)", opt:false },
+  { latlng: [37.7843693,-122.4079981], n:"12 · Départ hôtel → Powell Station", t:"~18h15", d:"Uber recommandé (~10-15 min) — trajet réel à pied plus long qu\'il n\'y paraît (~30 min), risqué pour l\'heure du match.", opt:false },
+  { latlng: [37.7680183,-122.3878772], n:"13 · T Third → Chase Center (Muni gratuit)", t:"~18h30", d:"Plateforme Union Square/Market St Station (panneaux au sol, ligne T Third). Rames toutes les ~10 min ce soir-là. ~15-20 min de trajet jusqu\'à Chase C", opt:false },
+  { latlng: [37.7968841,-122.4207936], n:"14 · Retour hôtel", t:"~21h30", d:"T Third gratuit ou Uber (~30$, surge possible).", opt:false },
+];
+mer19.forEach(p => L.marker(p.latlng, {icon:mkIcon(p.opt?'#9ca3af':'#22c55e', p.n.split(' ')[0])}).addTo(map).bindPopup(pop(p.n,p.t,p.d),{maxWidth:280}));
+L.polyline([HOTEL].concat(mer19.filter(p=>!p.opt).map(p=>p.latlng)), {color:'#22c55e',weight:3,opacity:0.75,dashArray:'8,4'}).addTo(map);
+
+const options = [
+  { latlng: [37.7962,-122.4008], n:"⚪ Cassava (Jackson Square)", d:"Café japonais." },
+  { latlng: [37.8045,-122.4690], n:"⚪ Golden Gate Picnic Spot", d:"" },
+  { latlng: [37.7627,-122.4013], n:"⚪ Maison Ant-Man", d:"1400 18th St." },
+  { latlng: [37.7920,-122.4144], n:"⚪ California Street", d:"" },
+  { latlng: [37.80393,-122.4767], n:"⚪ Golden Gate Overlook", d:"" },
+  { latlng: [37.7955,-122.4436], n:"⚪ Lyon Street Steps", d:"" },
+];
+options.forEach(p => L.marker(p.latlng, {icon:mkIcon('#9ca3af','⚪')}).addTo(map).bindPopup(pop(p.n,'Option',p.d),{maxWidth:280}));
+
+// ── LIGNES CABLE CAR (trace reel des rues) ──
+const ccPowellShared = [
+  [37.7847,-122.4077],  // Powell & Market (terminus commun)
+  [37.7900,-122.4085],  // Powell St (montee)
+  [37.7946,-122.4093],  // Powell & Jackson (virage)
+];
+const ccPowellMason = ccPowellShared.concat([
+  [37.7946,-122.4115],  // Jackson & Mason (virage)
+  [37.8010,-122.4113],  // Mason St
+  [37.8057,-122.4113],  // Mason & Bay (terminus, Fisherman's Wharf)
+]);
+const ccPowellHyde = ccPowellShared.concat([
+  [37.7946,-122.4197],  // Jackson & Hyde (virage)
+  [37.8010,-122.4197],  // Hyde St (passe pres de Lombard St)
+  [37.8058,-122.4203],  // Hyde & Beach (terminus, Ghirardelli Square)
+]);
+const ccCalifornia = [
+  [37.7946,-122.3966],  // California & Drumm (Financial District)
+  [37.7930,-122.4050],  // California St (Chinatown)
+  [37.7920,-122.4130],  // California St (sommet Nob Hill, pres Grace Cathedral)
+  [37.7909,-122.4212],  // California & Van Ness (terminus)
+];
+[ccPowellMason, ccPowellHyde, ccCalifornia].forEach(line => {
+  L.polyline(line, {color:'#d4af37', weight:4, opacity:0.85, dashArray:'2,8', lineCap:'round'}).addTo(map);
+});
+
+map.fitBounds([[37.73,-122.60],[37.90,-122.37]]);
+</script>
+</body>
+</html>
