@@ -103,7 +103,7 @@ const options = [
   { latlng: [34.078100,-118.361100], n:"⚪ Pan Pacific Park", d:"" },
   { latlng: [34.115600,-118.144500], n:"⚪ Maison Space Jam", d:"" },
   { latlng: [33.945100,-118.343100], n:"⚪ Intuit Dome", d:"" },
-  { latlng: [34.0442971,-118.6621446], n:"⚪ Carbon Beach Terrace", d:"5046 Carbon Beach Terr, Malibu — sur les hauteurs, distinct de la plage." },
+  { latlng: [34.0442971,-118.6621446], n:"⚪ Villa Steph Curry", d:"5046 Carbon Beach Terr, Malibu — sur les hauteurs, distinct de la plage." },
 ];
 options.forEach(p => L.marker(p.latlng, {icon:mkIcon('#9ca3af','⚪')}).addTo(map).bindPopup(pop(p.n,'Option',p.d),{maxWidth:280}));
 
